@@ -44,14 +44,18 @@ if (cep != "") {
         document.getElementById('uf').value="...";
         document.getElementById('ibge').value="...";
 
-        //Cria um elemento javascript.
-        var script = document.createElement('script');
-
-        //Sincroniza com o callback.
-        script.src = 'https://viacep.com.br/ws/'+ cep + '/json/?callback=meu_callback';
-
-        //Insere script no documento e carrega o conteúdo.
-        document.body.appendChild(script);
+        //Consulta o webservice e repassa o resultado ao callback.
+        fetch('https://viacep.com.br/ws/' + cep + '/json/')
+            .then(function (resposta) {
+                if (!resposta.ok) throw new Error('HTTP ' + resposta.status);
+                return resposta.json();
+            })
+            .then(meu_callback)
+            .catch(function () {
+                //Sem isso os campos ficariam presos em "..." quando a consulta falha.
+                limpa_formulário_cep();
+                alert("Não foi possível consultar o CEP. Tente novamente.");
+            });
 
     } //end if.
     else {
